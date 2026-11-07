@@ -6,6 +6,43 @@ Built for the **Agents on Open Rails** hackathon. Track 1 (Stable Agents, Ripio 
 
 > **Resumen en español.** BecaPay es un agente que paga becas en la moneda local de cada estudiante (wFIAT de Ripio) sobre Celo mainnet. La fundación fondea en cualquier moneda; el agente revisa la liquidez en Textile el día antes, cambia lo justo para cada becario, paga en la fecha y, si no hay liquidez, paga en USD₮ y avisa. Opcionalmente guarda el excedente en USD₮ para protegerlo de la devaluación. Cada transacción lleva la etiqueta de atribución ERC-8021 y el agente tiene identidad ERC-8004. Por defecto corre en **simulación** (`DRY_RUN=true`): usa cotizaciones reales de Textile pero no firma nada. Para correrlo: `npm install`, `npm run dev` y abrir http://localhost:4317.
 
+## How to run
+
+No API key, wallet, or `.env.local` is required. Demo mode is the default: anything other than `DRY_RUN=false` keeps the agent in simulation. It starts, can load sample students, and does not sign or send transactions.
+
+```bash
+npm install
+npm run dev
+```
+
+Open http://localhost:4317 (port **4317**). On the dashboard click **Cargar demo**, then **Correr ciclo**. Node.js 20+ is enough.
+
+| | |
+|---|---|
+| Start | `npm run dev` |
+| Port | `4317` |
+| Required env vars | none for the demo |
+| Demo / mock mode | `DRY_RUN` defaults to on. Only the literal value `false` sends a real Celo transaction. |
+| Live demo | https://becapay.vercel.app |
+
+The longer setup notes, including how to go live, are in [Run it](#run-it).
+
+## On Celo mainnet
+
+Chain id **42220**. These are existing Ripio and Celo contracts, not contracts this repo deploys. Explorer links are on [Celoscan](https://celoscan.io).
+
+| What | Address |
+|---|---|
+| Agent wallet | [`0xDf0c8840FCc58A7554Bda12ed8A657c74B078C9c`](https://celoscan.io/address/0xDf0c8840FCc58A7554Bda12ed8A657c74B078C9c) |
+| USD₮ | [`0x48065fbbe25f71c9282ddf5e1cd6d6a887483d5e`](https://celoscan.io/token/0x48065fbbe25f71c9282ddf5e1cd6d6a887483d5e) |
+| wCOP | [`0x8a1d45e102e886510e891d2ec656a708991e2d76`](https://celoscan.io/token/0x8a1d45e102e886510e891d2ec656a708991e2d76) |
+| wBRL | [`0xd76f5faf6888e24d9f04bf92a0c8b921fe4390e0`](https://celoscan.io/token/0xd76f5faf6888e24d9f04bf92a0c8b921fe4390e0) |
+| wARS | [`0x0dc4f92879b7670e5f4e4e6e3c801d229129d90d`](https://celoscan.io/token/0x0dc4f92879b7670e5f4e4e6e3c801d229129d90d) |
+| wMXN | [`0x337e7456b420bd3481e7fa61fa9850343d610d34`](https://celoscan.io/token/0x337e7456b420bd3481e7fa61fa9850343d610d34) |
+| ERC-8004 Identity Registry | [`0x8004A169FB4a3325136EB29fA0ceB6D2e539a432`](https://celoscan.io/address/0x8004A169FB4a3325136EB29fA0ceB6D2e539a432) |
+
+There is no sample transaction hash in this repo yet. The default mode does not send transactions. After a live cycle, each hash shows up on `/auditoria` and on Celoscan.
+
 ---
 
 ## The problem
