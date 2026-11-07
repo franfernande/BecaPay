@@ -4,7 +4,9 @@ import path from "node:path";
 import crypto from "node:crypto";
 import type { DB } from "./types";
 
-const DATA_FILE = process.env.BECAPAY_DATA_FILE?.trim() || path.join(process.cwd(), "data", "becapay.json");
+function dataFile(): string {
+  return process.env.BECAPAY_DATA_FILE?.trim() || path.join(process.cwd(), "data", "becapay.json");
+}
 
 const MAX_LOG = 2000;
 
@@ -36,30 +38,52 @@ function emptyDB(): DB {
   };
 }
 
+type Memory = { __becapayMemory?: DB };
+const memory = globalThis as typeof globalThis & Memory;
+
+function cloneDB(db: DB): DB {
+  return JSON.parse(JSON.stringify(db)) as DB;
+}
+
 export function readDB(): DB {
+  // On Vercel the disk is read-only. A successful write stores the DB on this
+  // server instance so "Cargar demo" and a cycle survive the next request.
+  if (process.env.VERCEL && memory.__becapayMemory) return cloneDB(memory.__becapayMemory);
+  const file = dataFile();
   try {
-    const raw = fs.readFileSync(DATA_FILE, "utf8");
+    const raw = fs.readFileSync(file, "utf8");
     return { ...emptyDB(), ...(JSON.parse(raw) as Partial<DB>) } as DB;
   } catch (e) {
     if ((e as NodeJS.ErrnoException).code === "ENOENT") return emptyDB();
-    throw new Error(`No pude leer el archivo de datos (${DATA_FILE}). ¿Está bien formado el JSON?`);
+    throw new Error(`No pude leer el archivo de datos (${file}). ¿Está bien formado el JSON?`);
+  }
+}
+
+function writeToDisk(db: DB): void {
+  const file = dataFile();
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  const json = JSON.stringify(db, null, 2);
+  const tmp = `${file}.${process.pid}.tmp`;
+  try {
+    fs.writeFileSync(tmp, json, "utf8");
+    fs.renameSync(tmp, file);
+  } catch {
+    // Windows can refuse the rename while another process holds the file open.
+    fs.writeFileSync(file, json, "utf8");
+    try {
+      fs.rmSync(tmp, { force: true });
+    } catch {}
   }
 }
 
 export function writeDB(db: DB): void {
   if (db.log.length > MAX_LOG) db.log = db.log.slice(-MAX_LOG);
-  fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
-  const json = JSON.stringify(db, null, 2);
-  const tmp = `${DATA_FILE}.${process.pid}.tmp`;
   try {
-    fs.writeFileSync(tmp, json, "utf8");
-    fs.renameSync(tmp, DATA_FILE);
-  } catch {
-    // Windows can refuse the rename while another process holds the file open.
-    fs.writeFileSync(DATA_FILE, json, "utf8");
-    try {
-      fs.rmSync(tmp, { force: true });
-    } catch {}
+    writeToDisk(db);
+    memory.__becapayMemory = undefined;
+  } catch (e) {
+    if (!process.env.VERCEL) throw e;
+    memory.__becapayMemory = cloneDB(db);
   }
 }
 

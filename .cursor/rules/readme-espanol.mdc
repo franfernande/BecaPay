@@ -1,0 +1,16 @@
+---
+description: Mantener readme_esp.md como traducción al día de README.md
+globs: README.md,readme_esp.md
+alwaysApply: false
+---
+
+# README en español
+
+`README.md` es la fuente. `readme_esp.md` es la misma documentación, traducida al español.
+
+Si editás `README.md`, actualizá `readme_esp.md` en el mismo cambio, antes de dar la tarea por terminada. No dejes la traducción atrás.
+
+- Misma estructura, mismos datos: comandos, rutas, direcciones, hashes, URLs y nombres de variables se copian tal cual.
+- Se traducen títulos, prosa y comentarios. Los botones de la interfaz se dejan como aparecen en la app (`Cargar demo`, `Correr ciclo`).
+- Si agregás o sacás una sección en inglés, agregala o sacala en español. No resumas.
+- No hace falta commitear salvo que el usuario lo pida.

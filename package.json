@@ -6,6 +6,7 @@
     "dev": "next dev -p 4317",
     "build": "next build",
     "start": "next start -p 4317",
+    "test": "tsx --conditions=react-server --test tests/core.test.ts tests/store.test.ts",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "check": "tsx scripts/check-setup.ts",

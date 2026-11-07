@@ -4,6 +4,8 @@
 
 Built for the **Agents on Open Rails** hackathon. Track 1 (Stable Agents, Ripio × Celo) and Track 2A (Textile).
 
+Spanish version: [readme_esp.md](readme_esp.md).
+
 > **Resumen en español.** BecaPay es un agente que paga becas en la moneda local de cada estudiante (wFIAT de Ripio) sobre Celo mainnet. La fundación fondea en cualquier moneda; el agente revisa la liquidez en Textile el día antes, cambia lo justo para cada becario, paga en la fecha y, si no hay liquidez, paga en USD₮ y avisa. Opcionalmente guarda el excedente en USD₮ para protegerlo de la devaluación. Cada transacción lleva la etiqueta de atribución ERC-8021 y el agente tiene identidad ERC-8004. Por defecto corre en **simulación** (`DRY_RUN=true`): usa cotizaciones reales de Textile pero no firma nada. Para correrlo: `npm install`, `npm run dev` y abrir http://localhost:4317.
 
 ## How to run
@@ -23,6 +25,7 @@ Open http://localhost:4317 (port **4317**). On the dashboard click **Cargar demo
 | Port | `4317` |
 | Required env vars | none for the demo |
 | Demo / mock mode | `DRY_RUN` defaults to on. Only the literal value `false` sends a real Celo transaction. |
+| Tests | `npm test` — offline checks, no network and no secrets |
 | Live demo | https://becapay.vercel.app |
 
 The longer setup notes, including how to go live, are in [Run it](#run-it).
@@ -129,6 +132,7 @@ npm run dev            # http://localhost:4317
 Then open the dashboard and click **"Cargar demo"**, then **"Correr ciclo"**. Or, from the terminal:
 
 ```bash
+npm test               # offline checks: order splitting, slippage cap, coverage, attribution suffix
 npm run simulate       # loads the demo and runs one dry-run cycle with real Textile quotes
 npm run check          # read-only setup check (never prints secrets)
 npm run register:8004  # prints the ERC-8004 registration and simulates it (no tx)
@@ -148,5 +152,5 @@ See [`.env.example`](.env.example) (commented in Spanish). The main ones are `DR
 ## Current limitations
 
 - wMXN has no payout makers on Textile today, so wMXN students are paid in USD₮ with an alert. wPEN and wCLP have no corridor at all and cannot be selected.
-- Persistence is a single JSON file: ideal for one foundation running the agent on its own machine or a small VM; not meant for multi-tenant hosting.
+- Persistence is a single JSON file: ideal for one foundation running the agent on its own machine or a small VM; not meant for multi-tenant hosting. The public demo at https://becapay.vercel.app cannot write that file, so it keeps the demo in the server's memory. **Cargar demo** and **Correr ciclo** work there, and the data resets when that server instance shuts down. Nothing is signed.
 - The public audit view shows student wallets (they are public on-chain anyway) but never names.
